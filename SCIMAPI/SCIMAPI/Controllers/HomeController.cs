@@ -10,13 +10,11 @@ namespace SCIMAPI.Controllers
     {
         public ActionResult Index()
         {
-            return View();
-        }
+            string apiUri = Url.HttpRouteUrl("DefaultApi", new { controller = "Users", });
+            ViewBag.ApiUrl = new Uri(Request.Url, apiUri).AbsoluteUri.ToString();
 
-        public ActionResult Users()
-        {
             return View();
-        }
+        }       
     }
 
     
