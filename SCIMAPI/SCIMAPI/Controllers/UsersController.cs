@@ -7,6 +7,10 @@ using System.Net.Http;
 using System.Web.Http;
 using SCIMAPI.Models;
 
+using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+
 namespace SCIMAPI.Controllers
 {
     public class UsersController : ApiController
@@ -50,7 +54,12 @@ namespace SCIMAPI.Controllers
         [HttpGet]   
         public User GetUserByUserName(String userName)
         {
-            var user = db.Users.SqlQuery("select * from User where userName = {0}", userName).First<User>();
+            var find = from u in db.Users
+                       where (u.userName == userName)
+                       select u;
+
+            User user = find.First<User>();
+
             if (user == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -68,29 +77,31 @@ namespace SCIMAPI.Controllers
         ///Accepts a JSON object of the form:
         ///{
         ///     {
-        ///          "Id":"null / GUID",
+        ///          "Id":"null",
         ///          "userName":"user4@contoso.com",
         ///          "displayName":"User Four",
         ///          "active": false
         ///      }
         ///}
         /// </param>
-        /// <returns>Response: responds with the URI that has the Location of the new resource. E.g. /api/users/{id-of-new-resource}</returns>
-
+        /// <returns>Response: responds with the URI that has the Location of the new resource. E.g. /api/users/{id-of-new-resource}. 
+        /// If the user already exists, then the URI of the existing user is returned. 
+        /// No updates are performed, if the user already exists.
+        /// 
+        /// </returns>
         [HttpPost]
         public HttpResponseMessage PostUser(SCIMAPI.Models.User user)
         {
             if (!ModelState.IsValid)
             {
-                var existingUsers = from u in db.Users
-                            where (u.userName == user.userName)
-                            select u;
+                //user's Guid is null, as expected. Check if we already have an existing user with the same user name. If yes, return the existing user.
+                var existingUser = (from u in db.Users
+                                    where (u.userName == user.userName)
+                                    select u).Single<User>();
 
-                List<User> users = existingUsers.ToList<User>();
-
-                if (users.Count == 0)
+                //did not find user with the user name.
+                if (existingUser == null)
                 {
-                    //user doesnt exist already, create the new user
                     user.Id = Guid.NewGuid();
                     db.Users.Add(user);
                     db.SaveChanges();
@@ -104,15 +115,108 @@ namespace SCIMAPI.Controllers
 
                 else
                 {
-                    //user already exists. Return the user existing user object.
+                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, existingUser);
+
+                    string uri = Url.Link("DefaultApi", new { id = existingUser.Id });
+                    response.Headers.Location = new Uri(uri);
+                    return response;
+                }              
+                
+            }
+
+            //the Guid field in the object that comes in is set to valid Guid.
+            else
+            {
+                var existingUsers = from u in db.Users
+                                    where (u.userName == user.userName)
+                                    select u;
+
+                List<User> users = existingUsers.ToList<User>();
+
+                //if user not found.
+                if(users.Count == 0)
+                {
+                    var response = Request.CreateResponse<Guid>(HttpStatusCode.NotFound, user.Id);
+                    return response;
+                }
+
+                //user already exists. Return the user existing user object.
+                else
+                {                    
                     User firstUser = users.First<User>();
                     var response = Request.CreateResponse<User>(HttpStatusCode.Found, firstUser);
 
                     string uri = Url.Link("DefaultApi", new { id = firstUser.Id });
                     response.Headers.Location = new Uri(uri);
                     return response;
-                }                             
-            }                              
+                }
+            
+            }
+        }
+
+
+        /// <summary>
+        /// update user
+        /// PUT api/users/
+        /// </summary>
+        /// <param name="user"> 
+        /// The JSON in the following format is bound to the parameter "user"
+        ///Accepts a JSON object of the form:
+        ///{
+        ///     {
+        ///          "Id":"Guid",
+        ///          "userName":"user4@contoso.com",
+        ///          "displayName":"User Four",
+        ///          "active": false/true
+        ///      }
+        ///}
+        /// </param>
+        /// <returns>
+        /// URI to user if user exists and is updated. Else "user not found".
+        /// </returns>
+        [HttpPut]
+        public HttpResponseMessage PutUser(User user)
+        {
+            //Requires a valid user.Id to be sent in.
+            if (ModelState.IsValid)
+            {
+                var userToUpdate = (from u in db.Users
+                                    where (u.Id == user.Id)
+                                    select u).Single<User>();
+                
+                //if user is found
+                if (userToUpdate != null)
+                {
+                    userToUpdate.userName = user.userName;
+                    userToUpdate.displayName = user.displayName;
+                    userToUpdate.active = user.active;
+
+                    db.Entry(userToUpdate).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, userToUpdate);
+
+                    string uri = Url.Link("DefaultApi", new { id = userToUpdate.Id });
+                    response.Headers.Location = new Uri(uri);
+                    return response;
+                }
+
+                //if user not found
+                else
+                {
+                    var response = Request.CreateResponse<String>(HttpStatusCode.NotFound, "User not found.");
+                    return response;
+                }              
+
+            }
+
+            //invalid user object
+            else
+            {
+                var response = Request.CreateResponse<String>(HttpStatusCode.NotFound, "Invalid user object. Cannot update user");
+                return response;
+            }
+
         }
 
         /// <summary>

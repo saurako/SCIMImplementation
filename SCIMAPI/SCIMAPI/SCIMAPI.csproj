@@ -127,6 +127,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201310171550376_InitialCreate.cs" />
+    <Compile Include="Migrations\201310171550376_InitialCreate.Designer.cs">
+      <DependentUpon>201310171550376_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201310172140040_Initial.cs" />
+    <Compile Include="Migrations\201310172140040_Initial.Designer.cs">
+      <DependentUpon>201310172140040_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UsersContext.cs" />
     <Compile Include="Models\UsersContextInitializer.cs" />
@@ -189,6 +198,8 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <None Include="Properties\PublishProfiles\scimapi - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\scimapi - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.7.1.intellisense.js" />
     <Content Include="Scripts\CustomScript.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
@@ -232,17 +243,21 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\SecondUsers\Index.cshtml" />
-    <Content Include="Views\SecondUsers\Details.cshtml" />
-    <Content Include="Views\SecondUsers\Create.cshtml" />
-    <Content Include="Views\SecondUsers\Edit.cshtml" />
-    <Content Include="Views\SecondUsers\Delete.cshtml" />
+    <Content Include="Views\Home\Users.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201310171550376_InitialCreate.resx">
+      <DependentUpon>201310171550376_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201310172140040_Initial.resx">
+      <DependentUpon>201310172140040_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
