@@ -20,11 +20,16 @@ namespace SCIMAPI
             );
 
             routes.MapRoute(
-                name: "getOneUser",
+                name: "getUserByID",
                 url: "users/{id}",
-                defaults: new { controller = "Users", action = "GetUserById", id = UrlParameter.Optional }
+                defaults: new { controller = "Users", action = "GetUserById"}
             );
 
+            routes.MapRoute(
+                name: "getUserByUserName",
+                url: "users/{userName}",
+                defaults: new { controller = "Users", action = "GetUserByUserName" }
+            );
 
 
             routes.MapRoute(
