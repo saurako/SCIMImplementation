@@ -11,28 +11,22 @@ namespace SCIMAPI.Controllers
 {
     public class UsersController : ApiController
     {
-        //fake data
-        public static List<User> users = new List<User> {
-            new User {Id = Guid.NewGuid(), userName = "user1@contoso.com", displayName = "User One", active = true},
-            new User {Id = Guid.NewGuid(), userName = "user2@contoso.com", displayName = "User Two", active = true},
-            new User {Id = Guid.NewGuid(), userName = "user3@contoso.com", displayName = "User Three", active = false}
-        };
+        private UsersContext db = new UsersContext();
 
-
-        [HttpGet]        
+        [HttpGet]
         public IEnumerable<User> GetAllUsers()
         {
-            return users;
+            return db.Users.ToList();
         }
 
         //GET /users/{id}
         [HttpGet]   
         public User GetUserById(Guid id)
         {
-            var user = users.FirstOrDefault((u) => u.Id == id);
+            var user = db.Users.Find(id);
             if (user == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.NotFound); 
             }
             return user;
         }
@@ -41,7 +35,7 @@ namespace SCIMAPI.Controllers
         [HttpGet]   
         public User GetUserByUserName(String userName)
         {
-            var user = users.FirstOrDefault((u) => u.userName == userName);
+            var user = db.Users.SqlQuery("select * from User where userName = {0}", userName).First<User>();
             if (user == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -68,28 +62,22 @@ namespace SCIMAPI.Controllers
         [HttpPost]
         public HttpResponseMessage PostUser(SCIMAPI.Models.User user)
         {
-            User newUser;
-
-            if (user.Id.ToString() == "null")
+            if (ModelState.IsValid)
             {
-                //create the user
-                newUser = new User { Id = Guid.NewGuid(), userName = user.userName, active = user.active, displayName = user.displayName };
-                users.Add(newUser);                
-            }
-            else {
-                //Get the existing user form teh data store
-                
-
-
-                newUser = user;
-            }
-
+                //create the new user
+                user.Id = Guid.NewGuid();
+                db.Users.Add(user);
+                db.SaveChanges();
+            }    
             
-            var response = Request.CreateResponse<User>(HttpStatusCode.Created, newUser);
+            //TODO: update user if ID is found in table.
 
-            string uri = Url.Link("DefaultApi", new { id = newUser.Id });
+                       
+            var response = Request.CreateResponse<User>(HttpStatusCode.Created, user);
+
+            string uri = Url.Link("DefaultApi", new { id = user.Id });
             response.Headers.Location = new Uri(uri);
-            return response;
+            return response;            
         }
         
     }

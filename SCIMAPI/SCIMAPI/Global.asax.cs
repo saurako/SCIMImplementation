@@ -24,6 +24,10 @@ namespace SCIMAPI
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             ValueProviderFactories.Factories.Add(new JsonValueProviderFactory());
+
+            //delete and recreate database if model changes.
+            System.Data.Entity.Database.SetInitializer(
+                new SCIMAPI.Models.UsersContextInitializer());
         }
     }
 }

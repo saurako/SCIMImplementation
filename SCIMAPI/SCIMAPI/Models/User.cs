@@ -8,6 +8,7 @@ namespace SCIMAPI.Models
 {
     public class User
     {
+        [Key]
         public Guid Id { get; set; }
 
         [DataType(DataType.EmailAddress)]
@@ -15,8 +16,7 @@ namespace SCIMAPI.Models
 
         public string displayName { get; set; }
 
-        public Boolean active { get; set; }
-
-        
+        public Boolean active { get; set; }    
+               
     }
 }

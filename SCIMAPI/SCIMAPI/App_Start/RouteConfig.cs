@@ -13,11 +13,19 @@ namespace SCIMAPI
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            //routes.MapRoute(
-            //    name: "users",
-            //    url: "users/",
-            //    defaults: new { controller = "Users", action = "GetAllUsers" }
-            //);
+            routes.MapRoute(
+                name: "getAllUsers",
+                url: "users/",
+                defaults: new { controller = "Users", action = "GetAllUsers" }
+            );
+
+            routes.MapRoute(
+                name: "getOneUser",
+                url: "users/{id}",
+                defaults: new { controller = "Users", action = "GetUserById", id = UrlParameter.Optional }
+            );
+
+
 
             routes.MapRoute(
                 name: "Default",
