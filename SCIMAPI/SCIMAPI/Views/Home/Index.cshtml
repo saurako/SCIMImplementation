@@ -1,36 +1,53 @@
-﻿<header>
-    <div class="content-wrapper">
-        <div class="float-left">
-            <p class="site-title">
-                <a href="~/">ASP.NET Web API</a></p>
-        </div>
-    </div>
-</header>
-<div id="body">
+﻿<div id="body">
     <section class="featured">
         <div class="content-wrapper">
             <hgroup class="title">
-                <h1>SCIM API Implementation prototype</h1>                
-            </hgroup>            
+                <h1>SCIM API Prototype</h1>
+            </hgroup>
         </div>
     </section>
     <section class="content-wrapper main-content clear-fix">
-        <h3>Users currently in the database</h3>
-        
+        <div class="content">
+            <div class="float-left">
+                <div class="items">
+                    <label>User ID</label>
+                    <input type="text" />
+                </div>
+                <div class="items">
+                    <label class="item">User Name</label>
+                    <input type="text" />
+                </div>
+                <div class="items">
+                    <label class="item">Display Name</label>
+                    <input type="text" />
+                </div>
+                <div class="items">
+                    <label>Active</label>
+                    <select>
+                        <option value="ture">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="button" value="Create User" />
+                    <input type="button" value="Update User" />
+                    <input type="button" value="Delete User" />
+                </div>
+            </div>
+            <div class="float-right">
+                <h3>Users in the database</h3>
+                <table>
+                    <tr>
+                        <td>First User</td>
+                        <td>usre1@contoso.com</td>
+                    </tr>
+                    <tr>
+                        <td>First User</td>
+                        <td>usre1@contoso.com</td>
+                    </tr>
+                </table>
+                
+            </div>
+        </div>
     </section>
-
-    <section>
-        <button onclick="sendData()">
-            Send data
-        </button>
-    </section>
-
-    @section Scripts {
-  @Scripts.Render("~/bundles/jqueryval")
-  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script> 
-  <script type="text/javascript">
-      // View-model will go here
-  </script>
-}
-
 </div>
