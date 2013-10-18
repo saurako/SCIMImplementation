@@ -2,52 +2,139 @@
     <section class="featured">
         <div class="content-wrapper">
             <hgroup class="title">
-                <h1>SCIM API Prototype</h1>
+                <h1>SCIM Implementation Prototype</h1>
             </hgroup>
         </div>
     </section>
     <section class="content-wrapper main-content clear-fix">
         <div class="content">
             <div class="float-left">
-                <div class="items">
-                    <label>User ID</label>
-                    <input type="text" />
-                </div>
-                <div class="items">
-                    <label class="item">User Name</label>
-                    <input type="text" />
-                </div>
-                <div class="items">
-                    <label class="item">Display Name</label>
-                    <input type="text" />
-                </div>
-                <div class="items">
-                    <label>Active</label>
-                    <select>
-                        <option value="ture">True</option>
-                        <option value="false">False</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="button" value="Create User" />
-                    <input type="button" value="Update User" />
-                    <input type="button" value="Delete User" />
-                </div>
+                <h3>Users currently in the database</h3>
+                <table id="usersList">
+                    <tr> 
+                        <td> User Id </td>
+                        <td> User Name</td>
+                        <td> Display Name</td>
+                        <td> Active </td>
+                    </tr>
+                </table>                
             </div>
-            <div class="float-right">
-                <h3>Users in the database</h3>
+            <div class="float-left">                
                 <table>
                     <tr>
-                        <td>First User</td>
-                        <td>usre1@contoso.com</td>
+                        <td><label class="items">User ID</label></td>
+                        <td><label class="items">User Name</label></td>
+                        <td><label class="items">Display Name</label></td>
+                        <td><label class="items">Active</label></td>
                     </tr>
                     <tr>
-                        <td>First User</td>
-                        <td>usre1@contoso.com</td>
+                        <td><input id="userIdInput" type="text" /></td>
+                        <td><input id="userNameInput" type="text" /></td>
+                        <td><input id="displayNameInput" type="text" /></td>
+                        <td>
+                            <select id="activeSelect">
+                                <option value="ture">True</option>
+                                <option value="false">False</option>
+                            </select>
+                        </td>
                     </tr>
-                </table>
-                
+                </table>                
+                <div>
+                    <input id="createButton" type="button" value="Create User" />
+                    <input id="updateButton" type="button" value="Update User" />
+                    <input id="deleteButton" type="button" value="Delete User" />
+                </div>
             </div>
+            
         </div>
     </section>
 </div>
+
+@section Scripts {    
+  <script type="text/javascript">
+  
+      $(document).ready(function () {
+          $.get('@ViewBag.ApiUrl', function (data) {              
+              $.each(data, function (key, val) {
+                  $('#usersList').append('<tr><td> ' + val.Id + '</td><td>' + val.userName + '</td><td>' + val.displayName + '</td><td>'+ val.active+ '</td></tr>');
+              });              
+          });
+      });
+
+      $('#createButton').click(function () {
+          var userId = jQuery.trim($('#userIdInput').val());
+          var userName = jQuery.trim($('#userNameInput').val());
+          var displayName = jQuery.trim($('#displayNameInput').val());
+          var active = $('#activeSelect').val();
+
+          if (userName.length > 0 &&
+              displayName.length > 0 
+              )
+          {
+              var sendData = { "Id":userId, "userName":userName, "displayName": displayName, "active": active };
+              $.post('@ViewBag.ApiUrl',sendData, function (data) {
+                  alert("User Created. Refresh the page to see the user in the table.");
+              })
+              .fail(function () {
+                  alert("User could not be created. Try again.");
+              });
+          
+
+          }
+
+      });
+
+      $('#deleteButton').click(function () {
+          var userId = jQuery.trim($('#userIdInput').val());         
+
+          if (userId.length > 0              
+              )
+          {              
+              $.ajax({
+                  url: '@ViewBag.ApiUrl' + '/' + userId,
+                  type: "DELETE",                  
+                  success: function (response)
+                  {
+                      alert("User deleted. Refresh the page to see the changes.");
+                  }
+              })
+                  .fail(
+                  function (response) {
+                      alert("Could not delete user. Try again.");
+                  }
+                    );                    
+          }
+
+      });
+
+      $('#updateButton').click(function () {
+          var userId = jQuery.trim($('#userIdInput').val());
+          var userName = jQuery.trim($('#userNameInput').val());
+          var displayName = jQuery.trim($('#displayNameInput').val());
+          var active = $('#activeSelect').val();
+
+          if (userId.length > 0 &&
+              userName.length > 0 &&
+              displayName.length > 0
+              ) {
+              var sendData = { "Id": userId, "userName": userName, "displayName": displayName, "active": active };
+              $.ajax({
+                  url: '@ViewBag.ApiUrl',
+                  type: "PUT",
+                  data: sendData,
+                  success: function (response) {
+                      alert("User updated. Refresh the page to see the changes.");
+                  }
+              })
+                  .fail(
+                  function (response) {
+                      alert("Could not updated user. Try again.");
+                  }
+                    );
+          }
+
+      });
+
+
+  </script>
+}

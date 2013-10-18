@@ -92,16 +92,17 @@ namespace SCIMAPI.Controllers
         [HttpPost]
         public HttpResponseMessage PostUser(SCIMAPI.Models.User user)
         {
-            if (!ModelState.IsValid)
+            if (user != null)
             {
                 //user's Guid is null, as expected. Check if we already have an existing user with the same user name. If yes, return the existing user.
                 var existingUser = (from u in db.Users
                                     where (u.userName == user.userName)
-                                    select u).Single<User>();
+                                    select u).ToList<User>();
 
                 //did not find user with the user name.
-                if (existingUser == null)
+                if (existingUser.Count == 0)
                 {
+
                     user.Id = Guid.NewGuid();
                     db.Users.Add(user);
                     db.SaveChanges();
@@ -115,9 +116,9 @@ namespace SCIMAPI.Controllers
 
                 else
                 {
-                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, existingUser);
+                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, existingUser.First<User>());
 
-                    string uri = Url.Link("DefaultApi", new { id = existingUser.Id });
+                    string uri = Url.Link("DefaultApi", new { id = existingUser.First<User>().Id });
                     response.Headers.Location = new Uri(uri);
                     return response;
                 }              
@@ -178,15 +179,17 @@ namespace SCIMAPI.Controllers
         public HttpResponseMessage PutUser(User user)
         {
             //Requires a valid user.Id to be sent in.
-            if (ModelState.IsValid)
+            if (user != null)
             {
-                var userToUpdate = (from u in db.Users
+                var usersToUpdate = (from u in db.Users
                                     where (u.Id == user.Id)
-                                    select u).Single<User>();
+                                    select u).ToList<User>();
                 
                 //if user is found
-                if (userToUpdate != null)
+                if (usersToUpdate.Count > 0)                
                 {
+                    User userToUpdate = usersToUpdate.First<User>();
+
                     userToUpdate.userName = user.userName;
                     userToUpdate.displayName = user.displayName;
                     userToUpdate.active = user.active;
