@@ -93,8 +93,8 @@ namespace SCIMAPI.Controllers
         public HttpResponseMessage PostUser(SCIMAPI.Models.User user)
         {
             if (user != null)
-            {
-                //user's Guid is null, as expected. Check if we already have an existing user with the same user name. If yes, return the existing user.
+            { 
+                //user is not null, as expected. Check if we already have an existing user with the same user name. If yes, return the existing user.
                 var existingUser = (from u in db.Users
                                     where (u.userName == user.userName)
                                     select u).ToList<User>();
@@ -102,16 +102,23 @@ namespace SCIMAPI.Controllers
                 //did not find user with the user name.
                 if (existingUser.Count == 0)
                 {
+                    try
+                    {
+                        user.Id = Guid.NewGuid();
+                        db.Users.Add(user);
+                        db.SaveChanges();
 
-                    user.Id = Guid.NewGuid();
-                    db.Users.Add(user);
-                    db.SaveChanges();
+                        var response = Request.CreateResponse<User>(HttpStatusCode.Created, user);
 
-                    var response = Request.CreateResponse<User>(HttpStatusCode.Created, user);
-
-                    string uri = Url.Link("DefaultApi", new { id = user.Id });
-                    response.Headers.Location = new Uri(uri);
-                    return response;
+                        string uri = Url.Link("DefaultApi", new { id = user.Id });
+                        response.Headers.Location = new Uri(uri);
+                        return response;
+                    }
+                    catch (Exception e)
+                    {
+                        var response = Request.CreateResponse(HttpStatusCode.BadRequest);
+                        return response;
+                    }
                 }
 
                 else
@@ -125,32 +132,12 @@ namespace SCIMAPI.Controllers
                 
             }
 
-            //the Guid field in the object that comes in is set to valid Guid.
+            //the passed in user is null
             else
             {
-                var existingUsers = from u in db.Users
-                                    where (u.userName == user.userName)
-                                    select u;
-
-                List<User> users = existingUsers.ToList<User>();
-
-                //if user not found.
-                if(users.Count == 0)
-                {
-                    var response = Request.CreateResponse<Guid>(HttpStatusCode.NotFound, user.Id);
-                    return response;
-                }
-
-                //user already exists. Return the user existing user object.
-                else
-                {                    
-                    User firstUser = users.First<User>();
-                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, firstUser);
-
-                    string uri = Url.Link("DefaultApi", new { id = firstUser.Id });
-                    response.Headers.Location = new Uri(uri);
-                    return response;
-                }
+                var response = Request.CreateResponse(HttpStatusCode.BadRequest);                    
+                return response;
+                
             
             }
         }
@@ -188,20 +175,28 @@ namespace SCIMAPI.Controllers
                 //if user is found
                 if (usersToUpdate.Count > 0)                
                 {
-                    User userToUpdate = usersToUpdate.First<User>();
+                    try
+                    {
+                        User userToUpdate = usersToUpdate.First<User>();
 
-                    userToUpdate.userName = user.userName;
-                    userToUpdate.displayName = user.displayName;
-                    userToUpdate.active = user.active;
+                        userToUpdate.userName = user.userName;
+                        userToUpdate.displayName = user.displayName;
+                        userToUpdate.active = user.active;
 
-                    db.Entry(userToUpdate).State = EntityState.Modified;
-                    db.SaveChanges();
+                        db.Entry(userToUpdate).State = EntityState.Modified;
+                        db.SaveChanges();
 
-                    var response = Request.CreateResponse<User>(HttpStatusCode.Found, userToUpdate);
+                        var response = Request.CreateResponse<User>(HttpStatusCode.Found, userToUpdate);
 
-                    string uri = Url.Link("DefaultApi", new { id = userToUpdate.Id });
-                    response.Headers.Location = new Uri(uri);
-                    return response;
+                        string uri = Url.Link("DefaultApi", new { id = userToUpdate.Id });
+                        response.Headers.Location = new Uri(uri);
+                        return response;
+                    }
+                    catch (Exception e)
+                    {
+                        var response = Request.CreateResponse(HttpStatusCode.BadRequest);
+                        return response;
+                    }
                 }
 
                 //if user not found

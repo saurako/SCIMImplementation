@@ -29,14 +29,14 @@ namespace SCIMAPI.Migrations
             //    );
             //
 
-            var users = new List<User> {
-                new User {Id = Guid.NewGuid(), userName = "user1@contoso.com", displayName = "User One", active = true},
-                new User {Id = Guid.NewGuid(), userName = "user2@contoso.com", displayName = "User Two", active = true},
-                new User {Id = Guid.NewGuid(), userName = "user3@contoso.com", displayName = "User Three", active = false}
-            };
+            //var users = new List<User> {
+            //    new User {Id = Guid.NewGuid(), userName = "user1@contoso.com", displayName = "User One", active = true},
+            //    new User {Id = Guid.NewGuid(), userName = "user2@contoso.com", displayName = "User Two", active = true},
+            //    new User {Id = Guid.NewGuid(), userName = "user3@contoso.com", displayName = "User Three", active = false}
+            //};
 
-            users.ForEach(u => context.Users.AddOrUpdate(u));
-            context.SaveChanges();
+            //users.ForEach(u => context.Users.AddOrUpdate(u));
+            //context.SaveChanges();
         }
     }
 }

@@ -33,7 +33,7 @@
                         <td><input id="displayNameInput" type="text" /></td>
                         <td>
                             <select id="activeSelect">
-                                <option value="ture">True</option>
+                                <option value="true">True</option>
                                 <option value="false">False</option>
                             </select>
                         </td>
@@ -65,7 +65,12 @@
           var userId = jQuery.trim($('#userIdInput').val());
           var userName = jQuery.trim($('#userNameInput').val());
           var displayName = jQuery.trim($('#displayNameInput').val());
-          var active = $('#activeSelect').val();
+          var activeString = $('#activeSelect').val();
+          var active = false;
+
+          if (activeString.toString().toLowerCase() == "true") {
+              active = true;
+          }
 
           if (userName.length > 0 &&
               displayName.length > 0 

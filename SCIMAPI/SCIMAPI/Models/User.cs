@@ -11,9 +11,11 @@ namespace SCIMAPI.Models
         [Key]
         public Guid Id { get; set; }
 
-        [DataType(DataType.EmailAddress)]
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid user name")]
         public string userName { get; set; }
 
+        [Required]
         public string displayName { get; set; }
 
         public Boolean active { get; set; }    
